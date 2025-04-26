@@ -2,23 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Request;
+use App\Models\CryptoPrice;
+
 
 class CryptoController extends Controller
 {
     public function index()
     {
-        $response = Http::withHeaders([
-            'X-CMC_PRO_API_KEY' => 'TU_API_KEY',
-        ])->get('https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest', [
-            'start' => '1',
-            'limit' => '10',
-            'convert' => 'USD',
-        ]);
+        // Obtener las primeras 10 criptomonedas más relevantes o las que estén en la base de datos
+        $cryptos = CryptoPrice::orderBy('price', 'desc')->take(10)->get();
 
-        $cryptos = $response->json()['data'];
-
-        //return view('cryptos.index', compact('cryptos'));
-        return response()->json(['message' => 'Conexión correcta']);
+        // Retornar la vista con las criptomonedas
+        return view('index', compact('cryptos'));
     }
+
+    // Lógica para buscar criptomonedas basadas en el input del usuario
+    public function search(Request $request)
+    {
+        $query = $request->get('query'); // Obtiene el término de búsqueda
+
+        // Buscar criptomonedas que coincidan con el nombre de la moneda
+        $cryptos = CryptoPrice::where('currency', 'like', '%' . $query . '%')->get();
+
+        return view('index', compact('cryptos'));
+    }
+
 }

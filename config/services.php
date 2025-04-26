@@ -2,6 +2,11 @@
 
 return [
 
+    'coinmarketcap' => [
+    'key' => env('COINMARKETCAP_API_KEY'),
+],
+
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
